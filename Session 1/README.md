@@ -396,6 +396,9 @@ The <b>profile likelihood</b> is one which removes the nuisances parameters by f
 
 The profile likeihood is written as, 
 
+$$\mathcal{L}_{p}(M_{H})= \mathcal{L}_{s+b}(M_{H},\hat{\hat{N}}_{s})$$
+
+
 ![\mathcal{L}_{p}(M_{H})= \mathcal{L}_{s+b}(M_{H},\hat{\hat{N}}_{s})](https://render.githubusercontent.com/render/math?math=%5Cmathcal%7BL%7D_%7Bp%7D(M_%7BH%7D)%3D%20%5Cmathcal%7BL%7D_%7Bs%2Bb%7D(M_%7BH%7D%2C%5Chat%7B%5Chat%7BN%7D%7D_%7Bs%7D))
 
 where the double hat notation, $\hat{\hat{\cdot}}$, denotes the values of the nuisance parameter which maximises  $L_{s+b}$ at a given value of $M_{H}$.
