@@ -72,7 +72,7 @@ gauss.Print("V");
 
 Notice how the gaussian PDF, like the `RooFormulaVar` depends on our `RooRealVar` objects, these are its servers.  Its evaluation will depend on their values. 
 
-The main difference between PDFs and Functions in RooFit is that PDFs are <b>automatically normalised to unitiy</b>, hence they represent a probability density, you don't need to normalise yourself. Lets plot it for the current values of m and sigma.
+The main difference between PDFs and Functions in RooFit is that PDFs are <b>automatically normalised to unitiy</b>, hence they represent a probability density, you don't need to normalise yourself. Lets plot it for the current values of $m$ and $\sigma$.
 
 ```c++
 plot = mass.frame();
@@ -100,7 +100,7 @@ can->Draw();
 
 PDFs can be used to generate Monte Carlo data. One of the benefits of RooFit is that to do so only uses a single line of code!
 
-As before, we have to tell RooFit which variables to generate in (e.g which are the observables for an experiment). In this case, each of our events will be a single value of "mass" *m*.
+As before, we have to tell RooFit which variables to generate in (e.g which are the observables for an experiment). In this case, each of our events will be a single value of "mass" $m$.
 
 ```c++
 RooDataSet *data = (RooDataSet*) gauss.generate(RooArgSet(mass),500); 
@@ -220,7 +220,8 @@ This also introduces the other main use of PDFs in RooFit. They can be used to c
 
 The likelihood $\mathcal{L}$ is defined for a particluar dataset (and model) as being proportional to the probability to observe the data assuming some pdf. For our data, the probability to observe an event with a value in an interval bounded by a and b is given by,
 
-![ P\left(m~\epsilon~\[a,b\] \right) = \int_{a}^{b} f(m|\alpha)dm ](https://render.githubusercontent.com/render/math?math=%20P%5Cleft(m~%5Cepsilon~%5Ba%2Cb%5D%20%5Cright)%20%3D%20%5Cint_%7Ba%7D%5E%7Bb%7D%20f(m%7C%5Calpha)dm%20)
+![P\left(m \epsilon \[a,b\] \right) = \int_{a}^{b} f(m|\alpha)dm](https://render.githubusercontent.com/render/math?math=P%5Cleft(m%20%5Cepsilon%20%5Ba%2Cb%5D%20%5Cright)%20%3D%20%5Cint_%7Ba%7D%5E%7Bb%7D%20f(m%7C%5Calpha)dm)
+
 
 As that interval shrinks we can say this probability just becomes equal to ![f(m|\alpha)dm](https://render.githubusercontent.com/render/math?math=f(m%7C%5Calpha)dm)
 
