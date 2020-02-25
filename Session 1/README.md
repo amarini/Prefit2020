@@ -508,7 +508,7 @@ plotBC->Draw();
 cBC->Draw();
 ```
 
-This was the "shortest" interval, but we can also find the other valid intervals $[a,b]$ which satisfy $P(M_{H}\epsilon[a,b]) =0.68$. Let's compare the Bayesian 68% credible interval with our 65% confidence interval from the profile likelihood scan.
+This was the "shortest" interval, but we can also find the other valid intervals $[a,b]$ which satisfy $P(M_{H}\epsilon[a,b]) =0.68$. Let's compare the Bayesian 68% credible interval with our 68% confidence interval from the profile likelihood scan.
 
 ```c++
 RooStats::SimpleInterval *intervalBayes 
