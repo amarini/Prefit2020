@@ -5,6 +5,7 @@
 
 We will cover a few of the basics in the session today but note there are many more tutorials available at this link: [https://root.cern.ch/root/html600/tutorials/roofit/index.html](https://root.cern.ch/root/html600/tutorials/roofit/index.html)
 
+You should start a new terminal and open an interactive session of `root`. You can copy the code directly into this sesssion, or if you prefer, create a macro (`session1.C`) to save the commands and you can run it all together - it's up to you!
 
 ## Objects
 In Roofit, any variable, data point, function, PDF (etc.) is represented by a c++ object
