@@ -530,11 +530,17 @@ Now that we have seen intervals constructed from profile likelihoods and Bayesia
 
 Try the following procedure for computing Feldman-cousins confidence intervals for $m_{H}$,
 
--   use the profile likelihood as the test-statistic $q(x) = - 2 \ln \mathcal{L}(\mathrm{data}|x,\hat{\theta}_{x})/\mathcal{L}(\mathrm{data}|\hat{x},\hat{\theta})$ where $x$ is a point particular value of $m_{H}$, and $\hat{x}$ is the point corresponding to the best fit. In this test-statistic, the nuisance parameters are profiled, separately both in the numerator and denominator.
--   for each point $x$:
-    -   compute the observed test statistic $q_{\mathrm{obs}}(x)$
-    -   compute the expected distribution of $q(x)$ under the hypothesis of $x$ as the true value.
-    -   accept the point in the region if $p_{x}=P\left[q(x) > q_{\mathrm{obs}}(x)| x\right] > \alpha$
+You will use the profile likelihood as the test-statistic 
+
+![q(x) = - 2 \ln \mathcal{L}(\mathrm{data}|x,\hat{\theta}_{x})/\mathcal{L}(\mathrm{data}|\hat{x},\hat{\theta})](https://render.githubusercontent.com/render/math?math=q(x)%20%3D%20-%202%20%5Cln%20%5Cmathcal%7BL%7D(%5Cmathrm%7Bdata%7D%7Cx%2C%5Chat%7B%5Ctheta%7D_%7Bx%7D)%2F%5Cmathcal%7BL%7D(%5Cmathrm%7Bdata%7D%7C%5Chat%7Bx%7D%2C%5Chat%7B%5Ctheta%7D))
+
+where $x$ is a point particular value of $m_{H}$, and $\hat{x}$ is the point corresponding to the best fit. In this test-statistic, the nuisance parameters are profiled, separately both in the numerator and denominator.
+
+then, for each point $x$:
+
+-   compute the observed test statistic $q_{\mathrm{obs}}(x)$
+-   compute the expected distribution of $q(x)$ under the hypothesis of $x$ as the true value.
+-   accept the point in the region if $p_{x}=P\left[q(x) > q_{\mathrm{obs}}(x)| x\right] > \alpha$
 
 With a critical value $\alpha$. A particular value of $x$ belongs to your confidence region if $p_{x}$ is larger than $\alpha$ For example for a 68% CL confidence interval, use $\alpha=0.32$ (since $1-\alpha=0.68$).
 
