@@ -1,4 +1,4 @@
-# RooFit
+# 1. RooFit
 <b>RooFit</b> is a OO analysis environment built on ROOT. It is essentially a collection of classes designed to augment root for data modeling whose aim is summarised below (shamelessly stolen from Wouter Verkerke)...
 
 ![](files/roofit.png)
@@ -83,3 +83,158 @@ plot->Draw();
 can->Draw();
 ```
 
+If we change the value of MH, the PDF gets updated at the same time.
+
+```c++
+MH.setVal(125);
+gauss.plotOn(plot,RooFit::LineColor(kRed));
+
+MH.setVal(135);
+gauss.plotOn(plot,RooFit::LineColor(kGreen));
+
+plot->Draw();
+
+can->Update();
+can->Draw();
+```
+
+PDFs can be used to generate Monte Carlo data. One of the benefits of RooFit is that to do so only uses a single line of code!
+
+As before, we have to tell RooFit which variables to generate in (e.g which are the observables for an experiment). In this case, each of our events will be a single value of "mass" *m*.
+
+```c++
+RooDataSet *data = (RooDataSet*) gauss.generate(RooArgSet(mass),500); 
+//The arguments are the set of observables, follwed by the number of events
+
+data->Print();
+```
+
+Now we can plot the data as with other RooFit objects.
+
+```c++
+plot = mass.frame();
+
+data->plotOn(plot);
+gauss.plotOn(plot);
+gauss.paramOn(plot);
+
+plot->Draw();
+can->Update();
+can->Draw();
+```
+
+Of course we're not in the business of generating MC events, but collecting <b>real data!</b>. Next we will look at using real data in RooFit...
+
+## Datasets
+
+A dataset is essentially just a collection of points in N-dimensional (N-observables) space. There are two basic implementations in RooFit, 
+
+1) an "unbinned" dataset - `RooDataSet`
+
+2) a "binned" dataset - `RooDataHist`
+
+both of these use the same basic structure as below
+
+![](files/datastructure.png)
+
+Lets create an empty dataset where the only observable, the mass. Points can be added to the dataset one by one ...
+
+```c++
+RooDataSet mydata("dummy","My dummy dataset",RooArgSet(mass)); 
+// We've made a dataset with one observable (mass)
+
+mass.setVal(123.4);
+mydata.add(RooArgSet(mass));
+mass.setVal(145.2);
+mydata.add(RooArgSet(mass));
+mass.setVal(170.8);
+mydata.add(RooArgSet(mass));
+
+
+mydata.Print();
+```
+
+There are also other ways to manipulate datasets in this way as shown in the diagram below 
+
+![](files/datasets_manip.png)
+
+
+Luckily there are also Constructors for a `RooDataSet` from a `TTree` and for a `RooDataHist` from a `TH1` so its simple to convert from your usual ROOT objects.
+
+Let's take an example dataset put together already.
+
+```c++
+TFile *file = TFile::Open("tutorial.root");
+file->ls();
+```
+
+Inside the file, there is something called a `RooWorkspace`. This is just the RooFit way of keeping a persistent link between the objects for a model. It is a very useful way to share data and PDFs/functions etc among CMS collaborators.
+
+Let's take a look at it. It contains a `RooDataSet` and one variable. This time we called our variable (or observable) `CMS_hgg_mass`, let's assume now that this is the invariant mass of photon pairs where we assume our H-boson decays to photons.  
+
+```c++
+RooWorkspace *wspace = (RooWorkspace*) file->Get("workspace");
+wspace->Print("v");
+```
+
+Let's have a look at the data. The `RooWorkspace` has several accessor functions, we will use the `RooWorkspace::data` one. 
+There are also `RooWorkspace::var`, `RooWorkspace::function` and `RooWorkspace::pdf` with (hopefully) obvious purposes.
+
+```c++
+RooDataSet *hgg_data = (RooDataSet*) wspace->data("dataset");
+RooRealVar *hgg_mass = (RooRealVar*) wspace->var("CMS_hgg_mass");
+
+plot = hgg_mass->frame();
+
+hgg_data->plotOn(plot,RooFit::Binning(160)); 
+// Here we've picked a certain number of bins just for plotting purposes 
+
+plot->Draw();
+can->Update();
+can->Draw();
+```
+
+
+# 2. Likelihoods and Fitting to data 
+
+The data we have in our file doesn't look like a Gaussian distribution. Instead, we could probably use something like an exponential to describe it. 
+
+There is an exponential pdf already in RooFit (yep you guessed it) `RooExponential`. For a pdf, we only need one parameter which is the exponential slope $\alpha$ so our pdf is,  
+
+![f(m|\alpha) = \dfrac{1}{N} e^{-\alpha m}](https://render.githubusercontent.com/render/math?math=f(m%7C%5Calpha)%20%3D%20%5Cdfrac%7B1%7D%7BN%7D%20e%5E%7B-%5Calpha%20m%7D)
+
+Where of course, ![N = \int_{110}^{150} e^{-\alpha m} dm](https://render.githubusercontent.com/render/math?math=N%20%3D%20%5Cint_%7B110%7D%5E%7B150%7D%20e%5E%7B-%5Calpha%20m%7D%20dm)is the normalisation constant.
+
+You can fund a bunch of available RooFit functions here: [https://root.cern.ch/root/html/ROOFIT_ROOFIT_Index.html](https://root.cern.ch/root/html/ROOFIT_ROOFIT_Index.html)
+
+There is also support for a generic pdf in the form of a `RooGenericPdf`, check this link: [https://root.cern.ch/doc/v608/classRooGenericPdf.html](https://root.cern.ch/doc/v608/classRooGenericPdf.html)
+
+```c++
+RooRealVar alpha("alpha","#alpha",-0.05,-0.2,0.01);
+RooExponential expo("exp","exponential function",*hgg_mass,alpha);
+```
+
+We can use RooFit to tell us to estimate the value of $\alpha$ using this dataset. You will learn more about parameter estimation but for now we will just assume you know about maximising likelihoods. This <b>maximum likelihood estimator</b> is common in HEP and is known to give unbiased estimates for things like distribution means etc. 
+
+This also introduces the other main use of PDFs in RooFit. They can be used to construct <b>likelihoods</b> easily.
+
+The likelihood $\mathcal{L}$ is defined for a particluar dataset (and model) as being proportional to the probability to observe the data assuming some pdf. For our data, the probability to observe an event with a value in an interval bounded by a and b is given by,
+
+![ P\left(m~\epsilon~\[a,b\] \right) = \int_{a}^{b} f(m|\alpha)dm ](https://render.githubusercontent.com/render/math?math=%20P%5Cleft(m~%5Cepsilon~%5Ba%2Cb%5D%20%5Cright)%20%3D%20%5Cint_%7Ba%7D%5E%7Bb%7D%20f(m%7C%5Calpha)dm%20)
+
+As that interval shrinks we can say this probability just becomes equal to ![f(m|\alpha)dm](https://render.githubusercontent.com/render/math?math=f(m%7C%5Calpha)dm)
+
+The probability to observe the dataset we have is given by the product of such probabilities for each of our data points, so that 
+
+![\mathcal{L}(\alpha) \propto \prod_{i} f(m_{i}|\alpha)](https://render.githubusercontent.com/render/math?math=%5Cmathcal%7BL%7D(%5Calpha)%20%5Cpropto%20%5Cprod_%7Bi%7D%20f(m_%7Bi%7D%7C%5Calpha))
+
+Note that for a specific dataset, the $dm$ factors which should be there are constnant. They can therefore be absorbed into the constant of proportionality!
+
+The maximum likelihood esitmator for ![\alpha](https://render.githubusercontent.com/render/math?math=%5Calpha)
+, usually written as $\hat{\alpha}$, is found by maximising ![L(\alpha)](https://render.githubusercontent.com/render/math?math=L(%5Calpha)).
+
+Note that this won't depend on the value of the constant of proportionality so we can ignore it. This is true in most scenarios because usually only the <b>ratio</b> of likelihoods is needed, in which the constant factors out. 
+
+Obviously this multiplication of exponentials can lead to very large (or very small) numbers which can lead to numerical instabilities. To avoid this, we can take logs of the likelihood. Its also common to multiply this by -1 and minimize the resulting <b>N</b>egative <b>L</b>og <b>L</b>ikelihood</b> : $-Log \mathcal{L}(\alpha)$.
+
+RooFit can construct the <b>NLL</b> for us.
