@@ -524,7 +524,7 @@ std::cout << "\t 68% (frequentist) interval \t= ("
 
 They agree pretty well for our analysis but beware that this is not always the case! 
 
-## Feldman-Cousins 
+# (Advanced) Feldman-Cousins interval 
 
 Now that we have seen intervals constructed from profile likelihoods and Bayesian marginalisation (credible intervals), have a go at constructing the Feldman-Cousins interval. 
 
