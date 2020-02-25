@@ -533,7 +533,8 @@ Try the following procedure for computing Feldman-cousins confidence intervals f
 
 You will use the profile likelihood as the test-statistic 
 
-![q(x) = - 2 \ln \mathcal{L}(\mathrm{data}|x,\hat{\theta}_{x})/\mathcal{L}(\mathrm{data}|\hat{x},\hat{\theta})](https://render.githubusercontent.com/render/math?math=q(x)%20%3D%20-%202%20%5Cln%20%5Cmathcal%7BL%7D(%5Cmathrm%7Bdata%7D%7Cx%2C%5Chat%7B%5Ctheta%7D_%7Bx%7D)%2F%5Cmathcal%7BL%7D(%5Cmathrm%7Bdata%7D%7C%5Chat%7Bx%7D%2C%5Chat%7B%5Ctheta%7D))
+![q(x) = - 2 \ln \dfrac{\mathcal{L}(\mathrm{data}|x,\hat{\theta}_{x})}{\mathcal{L}(\mathrm{data}|\hat{x},\hat{\theta})}](https://render.githubusercontent.com/render/math?math=q(x)%20%3D%20-%202%20%5Cln%20%5Cdfrac%7B%5Cmathcal%7BL%7D(%5Cmathrm%7Bdata%7D%7Cx%2C%5Chat%7B%5Ctheta%7D_%7Bx%7D)%7D%7B%5Cmathcal%7BL%7D(%5Cmathrm%7Bdata%7D%7C%5Chat%7Bx%7D%2C%5Chat%7B%5Ctheta%7D)%7D)
+
 
 where $x$ is a point particular value of $m_{H}$, and $\hat{x}$ is the point corresponding to the best fit. In this test-statistic, the nuisance parameters are profiled, separately both in the numerator and denominator.
 
