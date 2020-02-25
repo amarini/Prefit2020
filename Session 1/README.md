@@ -235,6 +235,169 @@ The maximum likelihood esitmator for $\alpha$, usually written as $\hat{\alpha}$
 
 Note that this won't depend on the value of the constant of proportionality so we can ignore it. This is true in most scenarios because usually only the <b>ratio</b> of likelihoods is needed, in which the constant factors out. 
 
-Obviously this multiplication of exponentials can lead to very large (or very small) numbers which can lead to numerical instabilities. To avoid this, we can take logs of the likelihood. Its also common to multiply this by -1 and minimize the resulting <b>N</b>egative <b>L</b>og <b>L</b>ikelihood</b> : $-Log \mathcal{L}(\alpha)$.
+Obviously this multiplication of exponentials can lead to very large (or very small) numbers which can lead to numerical instabilities. To avoid this, we can take logs of the likelihood. Its also common to multiply this by -1 and minimize the resulting <b>N</b>egative <b>L</b>og <b>L</b>ikelihood</b> : $\mathrm{-Log}\mathcal{L}(\alpha)$.
 
 RooFit can construct the <b>NLL</b> for us.
+
+```c++
+RooNLLVar *nll = (RooNLLVar*) expo.createNLL(*hgg_data);
+nll->Print("v");
+```
+
+Notice that the NLL object knows which RooRealVar is the parameter because it doesn't find that one in the dataset. This is how RooFit distiguishes between <it>observables</it> and <it>parameters</it>.
+
+RooFit has an interface to Minuit via the `RooMinimizer` class which takes the NLL as an argument. To minimize, we just call the `RooMinimizer::minimize()` function. "Minuit2" is the program and "migrad" is the minimization routine which uses gradient descent.
+
+```c++
+RooMinimizer minim(*nll);
+minim.minimize("Minuit2","migrad");  
+```
+
+RooFit has found the best fit value of alpha for this dataset. It also estimates an uncertainty on alpha using the Hessian matrix from the fit.
+
+```c++
+alpha.Print("v");
+```
+
+Lets plot the resulting exponential on the data. Notice that the value of $\hat{\alpha}$ is used for the exponential. 
+
+```c++
+expo.plotOn(plot);
+expo.paramOn(plot);
+plot->Draw();
+can->Update();
+can->Draw();
+```
+
+It looks like there could be a small region near 125 GeV for which our fit doesn't quite go through the points. Maybe our hypothetical H-boson isn't so hypothetical after all!
+
+Let's see what happens if we include some resonant signal into the fit. We can take our Gaussian function again and use that as a signal model. A reasonable value for the resolution of a resonant signal with a mass around 125 GeV decaying to a pair of photons is around a GeV.
+
+```c++
+sigma.setVal(1.);
+sigma.setConstant();
+
+MH.setVal(125);
+MH.setConstant();
+
+RooGaussian hgg_signal("signal","Gaussian PDF",*hgg_mass,MH,sigma);
+```
+
+By setting these parameters constant, RooFit knows (either when creating the NLL by hand or when using `fitTo`) that there is not need to fit for these parameters. 
+
+We need to add this to our exponential model and fit a "Sigmal+Background model" by creating a `RooAddPdf`. In RooFit there are two ways to add PDFs, recursively where the fraction of yields for the signal and background is a parameter or absolutely where each PDF has its own normalisation. We're going to use the second one.
+
+```c++
+RooRealVar norm_s("norm_s","N_{s}",10,100);
+RooRealVar norm_b("norm_b","N_{b}",0,1000);
+
+const RooArgList components(hgg_signal,expo);
+const RooArgList coeffs(norm_s,norm_b);
+
+RooAddPdf model("model","f_{s+b}",components,coeffs);
+model.Print("v");
+```
+
+Ok now lets fit the model. Note this time we add the option `Extended()` which tells RooFit that we care about the overall number of observed events in the data $n$ too. It will add an additional Poisson term in the likelihood to account for this so our likelihood this time looks like,
+
+![L_{s+b}(N_{s},N_{b},\alpha) = \dfrac{ N_{s}+N_{b}^{n} e^{N_{s}+N_{b}} }{n!} \cdot \prod_{i}^{n} \left\[ c f_{s}(m_{i}|M_{H},\sigma)+ (1-c)f_{b}(m_{i}|\alpha)  \right\]](https://render.githubusercontent.com/render/math?math=L_%7Bs%2Bb%7D(N_%7Bs%7D%2CN_%7Bb%7D%2C%5Calpha)%20%3D%20%5Cdfrac%7B%20N_%7Bs%7D%2BN_%7Bb%7D%5E%7Bn%7D%20e%5E%7BN_%7Bs%7D%2BN_%7Bb%7D%7D%20%7D%7Bn!%7D%20%5Ccdot%20%5Cprod_%7Bi%7D%5E%7Bn%7D%20%5Cleft%5B%20c%20f_%7Bs%7D(m_%7Bi%7D%7CM_%7BH%7D%2C%5Csigma)%2B%20(1-c)f_%7Bb%7D(m_%7Bi%7D%7C%5Calpha)%20%20%5Cright%5D)
+
+where $c = \dfrac{ N_{s} }{ N_{s} + N_{b} }$,   $f_{s}(m|M_{H},\sigma)$ is the Gaussian signal pdf and $f_{b}(m|\alpha)$ is the exponential pdf. Remember that $M_{H}$ and $\sigma$ are fixed so that they are no longer parameters of the likelihood.
+
+There is a simpler interface for maximum likelihood fits which is the `RooAbsPdf::fitTo` method. With this simple method, RooFit will construct the negative log-likelihood function, from the pdf, and minimize all of the free parameters in one step.
+
+```c++
+model.fitTo(*hgg_data,RooFit::Extended());
+
+model.plotOn(plot,RooFit::Components("exp"),RooFit::LineColor(kGreen));
+model.plotOn(plot,RooFit::LineColor(kRed));
+model.paramOn(plot);
+
+can->Clear();
+plot->Draw();
+can->Update();
+can->Draw();
+```
+
+What about if we also fit for the mass ($M_{H}$)? we can easily do this by removing the constant setting on MH.
+
+```c++
+MH.setConstant(false);
+model.fitTo(*hgg_data,RooFit::Extended());
+```
+
+Notice now the result for the fitted MH is not 125 and gets added to the fitted parameters since now it is floating.
+We can get more information about the fit, via the `RooFitResult`, using the option `Save()`. 
+
+```c++
+RooFitResult *fit_res = (RooFitResult*) model.fitTo(*hgg_data,RooFit::Extended(),RooFit::Save());
+fit_res->Print("v");
+```
+
+For example, we can get the Correlation Matrix from the fit result... Note that the order of the parameters are the same as listed in the "Floating Parameter" list above
+
+```c++
+TMatrixDSym cormat = fit_res->correlationMatrix();
+cormat.Print();
+```
+
+And we can also visualise these results using some built-in RooFit visualisation tools 
+
+```c++
+TCanvas *can2 = new TCanvas("c","c",1000,460);
+can2->Divide(2);
+
+can2->cd(1);
+
+RooPlot plot_err_mat(norm_b,norm_s,123,126,0,80);
+fit_res->plotOn(&plot_err_mat,MH,norm_s,"MEVH12");
+plot_err_mat.Draw();
+
+can2->cd(2);
+
+plot = hgg_mass->frame();
+model.plotOn(plot,RooFit::VisualizeError(*fit_res,1),RooFit::FillColor(kOrange));
+model.plotOn(plot);
+plot->Draw();
+
+can2->Draw();
+```
+
+A nice feature of RooFit is that once we have a pdf, data and results like this, we can import this new model into our `RooWorkspace` and show off our new discovery to our LHC friends (if we weren't about 5 years too late!). We can also save the "state" of our parameters for later, by creating a snapshot of the current values. 
+
+```c++
+wspace->import(model);  
+RooArgSet *params = model.getParameters(*hgg_data);
+wspace->saveSnapshot("nominal_values",*params);
+
+wspace->Print("V");
+```
+
+# 3. Nuisance Parameters 
+
+
+In HEP, we often have the case where there are some parameters of the model which are physics parameters of interest, while others are known as nuisance parameters. In some cases, those parameters may have external constraints, coming from other data or some theoretical reasoning. This is how we often treat <b>systematic uncertainties</b> but we won't cover those today.
+
+There are two schools of thought for removing nuisance parameters 
+
+   * Frequentists use profiling 
+   * Bayesians use marginalisation
+
+In our case, the hypothesis mass $M_{H}$ might be the thing which we can write papers on and win Nobel prizes for while we're not nearly so interested in the values of $N_{s}$, $\alpha$ or $N_{b}$. 
+
+For simplicity, we will assume that the values of $\alpha$ and $N_{b}$ are fixed (maybe from theory or from a large Monte Carlo simulation) and so the only remaining nuisance paraemeter is $N_{s}$. 
+
+```c++
+alpha.setConstant(true);
+norm_b.setConstant(true);
+```
+
+The <b>profile likelihood</b> is one which removes the nuisances parameters by fitting them away. Note this is a major divide for Bayesians and Freqeuentist since removing nuisance parameters for Bayesians involves integrating (or marginalising) over them. 
+
+The profile likeihood is written as, 
+
+![\mathcal{L}_{p}(M_{H})= \mathcal{L}_{s+b}(M_{H},\hat{\hat{N}}_{s})](https://render.githubusercontent.com/render/math?math=%5Cmathcal%7BL%7D_%7Bp%7D(M_%7BH%7D)%3D%20%5Cmathcal%7BL%7D_%7Bs%2Bb%7D(M_%7BH%7D%2C%5Chat%7B%5Chat%7BN%7D%7D_%7Bs%7D))
+
+where the double hat notation, $\hat{\hat{\cdot}}$, denotes the values of the nuisance parameter which maximises  $L_{s+b}$ at a given value of $M_{H}$.
+
+RooFit has a useful class under the RooStats libraries for profile likelihoods: `ProfileLikelihoodCalculator` : [https://root.cern.ch/doc/v606/classRooStats_1_1ProfileLikelihoodCalculator.html](https://root.cern.ch/doc/v606/classRooStats_1_1ProfileLikelihoodCalculator.html)
