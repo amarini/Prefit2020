@@ -230,8 +230,7 @@ The probability to observe the dataset we have is given by the product of such p
 
 Note that for a specific dataset, the $dm$ factors which should be there are constnant. They can therefore be absorbed into the constant of proportionality!
 
-The maximum likelihood esitmator for ![\alpha](https://render.githubusercontent.com/render/math?math=%5Calpha)
-, usually written as $\hat{\alpha}$, is found by maximising ![L(\alpha)](https://render.githubusercontent.com/render/math?math=L(%5Calpha)).
+The maximum likelihood esitmator for $\alpha$, usually written as $\hat{\alpha}$, is found by maximising $\mathcal{L}(\alpha)$.
 
 Note that this won't depend on the value of the constant of proportionality so we can ignore it. This is true in most scenarios because usually only the <b>ratio</b> of likelihoods is needed, in which the constant factors out. 
 
