@@ -529,12 +529,11 @@ They agree pretty well for our analysis but beware that this is not always the c
 
 Now that we have seen intervals constructed from profile likelihoods and Bayesian marginalisation (credible intervals), have a go at constructing the Feldman-Cousins interval. 
 
-Try the following procedure for computing Feldman-cousins confidence intervals for $m_{H}$,
+**1. Try the following procedure for computing Feldman-cousins confidence intervals for $m_{H}$:**
 
 You will use the profile likelihood as the test-statistic 
 
 ![q(x) = - 2 \ln \dfrac{\mathcal{L}(\mathrm{data}|x,\hat{\theta}_{x})}{\mathcal{L}(\mathrm{data}|\hat{x},\hat{\theta})}](https://render.githubusercontent.com/render/math?math=q(x)%20%3D%20-%202%20%5Cln%20%5Cdfrac%7B%5Cmathcal%7BL%7D(%5Cmathrm%7Bdata%7D%7Cx%2C%5Chat%7B%5Ctheta%7D_%7Bx%7D)%7D%7B%5Cmathcal%7BL%7D(%5Cmathrm%7Bdata%7D%7C%5Chat%7Bx%7D%2C%5Chat%7B%5Ctheta%7D)%7D)
-
 
 where $x$ is a point particular value of $m_{H}$, and $\hat{x}$ is the point corresponding to the best fit. In this test-statistic, the nuisance parameters are profiled, separately both in the numerator and denominator.
 
@@ -547,3 +546,7 @@ then, for each point $x$:
 With a critical value $\alpha$. A particular value of $x$ belongs to your confidence region if $p_{x}$ is larger than $\alpha$ For example for a 68% CL confidence interval, use $\alpha=0.32$ (since $1-\alpha=0.68$).
 
 You should have learned enough so far to do this as you know now how to set parameters, freeze or unfreeze them, throw toy data and perform likelihood fits - Ask any of the instructors for help if you get stuck!
+
+**2. Can you also derive a 2D confidence region for $M_{H}$ vs `norm_s` ?
+
+Think about how you would modify the test-statistic for 2-parameters. Can you also include a physical boundary `norm_s>0`, how should the procedure be modified to account for that? 
