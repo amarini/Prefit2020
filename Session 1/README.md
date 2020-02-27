@@ -547,6 +547,6 @@ With a critical value $\alpha$. A particular value of $x$ belongs to your confid
 
 You should have learned enough so far to do this as you know now how to set parameters, freeze or unfreeze them, throw toy data and perform likelihood fits - Ask any of the instructors for help if you get stuck!
 
-**2. Can you also derive a 2D confidence region for $M_{H}$ vs `norm_s` ?
+**2. Can you also derive a 2D confidence region for $M_{H}$ vs `norm_s` ?**
 
 Think about how you would modify the test-statistic for 2-parameters. Can you also include a physical boundary `norm_s>0`, how should the procedure be modified to account for that? 
