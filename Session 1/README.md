@@ -461,7 +461,7 @@ for (int p=0, double mh_x=123; mh_x<125.6; p++, mh_x+=0.2){
 }
 
 canLI->cd(); 
-gr_likelihood->Draw("ALP"); 
+gr_likelihood.Draw("ALP"); 
 canLI->Draw();
 
 ```
