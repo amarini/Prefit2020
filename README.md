@@ -1,7 +1,7 @@
 # Prefit2020
 
 This is the GitHub area with all of the inputs you'll need for the hands-on part of the "Fitting sessions". 
-You should already have access to the `VirtualMachine` (VM) - it's the same one you used for the Madgraph/EFT hands-on sessions. 
+You should already have access to, and dowloaded the `VirtualMachine` (VM), which has `ROOT/RooFit` installed - it's the same one you used for the Madgraph/EFT hands-on sessions. 
 
 To clone this repository, type the following into a terminal inside your VM 
 
