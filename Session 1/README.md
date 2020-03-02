@@ -445,6 +445,27 @@ plotLI.Draw();
 canLI->Draw();
 ```
 
+Note, we could have easily produced this plot ourselves since a `RooNLLVar` inherits from a `RooRealVar` so has the `::getVal()` method. Fill in the code below to produce a `TGraph` of the profile likelihood plot. 
+
+
+```c++
+TGraph gr_likelihood; 
+for (int p=0, double mh_x=123; mh_x<125.6; p++, mh_x+=0.2){
+  
+  double delta_nll = ... ; 
+  
+  ...
+  
+  gr.SetPoint(p,mh_x,delta_nll); 
+  
+}
+
+canLI->cd(); 
+gr_likelihood->Draw("ALP"); 
+canLI->Draw();
+
+```
+
 ## Bayesian marginalisation 
 
 We can also obtain a Bayesian <b>posterior</b> density by using Bayes' theorem ...
