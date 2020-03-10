@@ -350,7 +350,7 @@ can2->Divide(2);
 
 can2->cd(1);
 
-RooPlot plot_err_mat(norm_b,norm_s,123,126,0,80);
+RooPlot plot_err_mat(MH,norm_s,123,126,0,80);
 fit_res->plotOn(&plot_err_mat,MH,norm_s,"MEVH12");
 plot_err_mat.Draw();
 
